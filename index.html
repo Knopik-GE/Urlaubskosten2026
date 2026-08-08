@@ -4,316 +4,484 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Urlaubskosten 2026</title>
+</head>
+<body>
 <style>
   :root {
-    --bg: #f4f6f8;
-    --card-bg: #ffffff;
-    --text: #1f2937;
-    --muted: #6b7280;
-    --border: #e2e8f0;
-    --accent: #2563eb;
-    --accent-hover: #1d4ed8;
-    --danger: #dc2626;
-    --danger-hover: #b91c1c;
-    --success-bg: #ecfdf5;
-    --success-border: #a7f3d0;
-    --success-text: #047857;
+    --bg: #EEF2EF;
+    --surface: #FBFDFC;
+    --surface-alt: #E3E9E5;
+    --border: #D3DAD5;
+    --text: #16211D;
+    --text-muted: #5A6B62;
+    --accent: #0E6E64;
+    --accent-hover: #0A5951;
+    --accent-soft: #DCEEEA;
+    --accent-ink: #063C36;
+    --danger: #A63A2E;
+    --danger-soft: #F7E4DF;
+    --danger-hover: #8A2F25;
+    --cat-unterkunft: #3F6A8A;
+    --cat-essen: #B25A55;
+    --cat-einkauf: #5E6F80;
+    --cat-besuche: #6B7A3B;
+    --cat-sonstiges: #7C6E8C;
+    --cat-diesel: #A9762A;
+    --shadow: 0 1px 2px rgba(22, 33, 29, 0.06), 0 4px 14px rgba(22, 33, 29, 0.05);
+    --font-display: Charter, "Iowan Old Style", "Source Serif 4", Georgia, serif;
+    --font-body: -apple-system, "Segoe UI", system-ui, Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
   }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1613;
+      --surface: #161F1B;
+      --surface-alt: #1E2A24;
+      --border: #2B3A33;
+      --text: #E7EFEA;
+      --text-muted: #96AAA0;
+      --accent: #45BDAE;
+      --accent-hover: #63CFC1;
+      --accent-soft: #1A3B36;
+      --accent-ink: #B9EEE5;
+      --danger: #E2836F;
+      --danger-soft: #3A211C;
+      --danger-hover: #ED9C8A;
+      --cat-unterkunft: #7FA6C9;
+      --cat-essen: #D98D86;
+      --cat-einkauf: #93A4B4;
+      --cat-besuche: #A8BD6C;
+      --cat-sonstiges: #ABA0BE;
+      --cat-diesel: #D6A24E;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1613;
+    --surface: #161F1B;
+    --surface-alt: #1E2A24;
+    --border: #2B3A33;
+    --text: #E7EFEA;
+    --text-muted: #96AAA0;
+    --accent: #45BDAE;
+    --accent-hover: #63CFC1;
+    --accent-soft: #1A3B36;
+    --accent-ink: #B9EEE5;
+    --danger: #E2836F;
+    --danger-soft: #3A211C;
+    --danger-hover: #ED9C8A;
+    --cat-unterkunft: #7FA6C9;
+    --cat-essen: #D98D86;
+    --cat-einkauf: #93A4B4;
+    --cat-besuche: #A8BD6C;
+    --cat-sonstiges: #ABA0BE;
+    --cat-diesel: #D6A24E;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.35);
+  }
+
   * { box-sizing: border-box; }
+  html { background: var(--bg); }
   body {
     margin: 0;
-    padding: 24px 16px 64px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 880px; margin: 0 auto; }
-  h1 { font-size: 1.6rem; margin-bottom: 4px; }
-  .subtitle { color: var(--muted); margin-bottom: 24px; font-size: 0.95rem; }
-  .card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
+  .tabnum { font-variant-numeric: tabular-nums; }
+
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- Sticky readout bar ---------- */
+  .tripbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--accent-ink);
+    background: linear-gradient(180deg, var(--accent-ink), color-mix(in srgb, var(--accent-ink) 88%, black));
+    color: #EAFBF6;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-ink) 60%, black);
   }
-  .card h2 {
-    font-size: 1.05rem;
-    margin: 0 0 14px;
+  .tripbar-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
   }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  .tripbar-title {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+  }
+  .tripbar-readouts { display: flex; gap: 22px; }
+  .readout { text-align: right; }
+  .readout .r-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.7; }
+  .readout .r-value { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 600; }
+
+  /* ---------- Page shell ---------- */
+  .wrap { max-width: 860px; margin: 0 auto; padding: 28px 20px 72px; }
+  .lede {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    margin: 0 0 26px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .save-indicator {
+    font-size: 0.74rem;
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .save-indicator.show { opacity: 1; }
+
+  section.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 22px 24px;
+    margin-bottom: 22px;
+  }
+  .panel-head-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
     gap: 14px;
-  }
-  label {
-    display: block;
-    font-size: 0.82rem;
-    color: var(--muted);
+    flex-wrap: wrap;
     margin-bottom: 4px;
   }
-  input[type="number"], input[type="text"], input[type="date"], select {
-    width: 100%;
-    padding: 9px 10px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 0.95rem;
-    background: #fff;
-    color: var(--text);
-  }
-  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-  .field { margin-bottom: 2px; }
-  .row-entry {
-    display: grid;
-    grid-template-columns: 120px 130px 1fr 100px 36px;
-    gap: 8px;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-  .row-entry input, .row-entry select { padding: 8px 8px; font-size: 0.9rem; }
-  .row-header {
-    display: grid;
-    grid-template-columns: 120px 130px 1fr 100px 36px;
-    gap: 8px;
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-bottom: 6px;
-    padding: 0 2px;
-  }
-  button {
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    padding: 10px 16px;
+  .panel h2 {
+    font-family: var(--font-display);
     font-weight: 600;
+    font-size: 1.18rem;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
   }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: var(--accent-hover); }
-  .btn-secondary { background: #eef2ff; color: var(--accent); }
-  .btn-secondary:hover { background: #e0e7ff; }
-  .btn-danger-ghost {
-    background: transparent;
-    color: var(--danger);
-    padding: 6px 8px;
-    font-size: 1.1rem;
-    line-height: 1;
+  .panel .panel-sub {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin: 0 0 18px;
   }
-  .btn-danger-ghost:hover { background: #fee2e2; border-radius: 6px; }
-  .btn-danger { background: var(--danger); color: #fff; }
-  .btn-danger:hover { background: var(--danger-hover); }
-  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-  .stat-grid {
+  .swatch {
+    width: 9px; height: 9px; border-radius: 2px;
+    display: inline-block;
+    background: var(--accent);
+    flex: none;
+  }
+  .inline-field { text-align: right; }
+  .inline-field label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 5px;
+  }
+  .inline-field input { width: 76px; text-align: center; }
+
+  .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
   }
-  .stat {
-    background: #f8fafc;
+  .field label {
+    display: block;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  input[type="number"], input[type="text"], input[type="date"], select {
+    padding: 10px 11px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    font-size: 0.95rem;
+    background: var(--surface-alt);
+    color: var(--text);
+    font-family: var(--font-body);
+  }
+  .field input { width: 100%; }
+  input[type="number"] { font-family: var(--font-mono); }
+  input::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+  /* ---------- Odometer readouts ---------- */
+  .odometer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--border);
+  }
+  .odo-stat {
+    background: var(--surface-alt);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 12px 14px;
   }
-  .stat .label { font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; }
-  .stat .value { font-size: 1.3rem; font-weight: 700; }
-  .stat.total { background: var(--success-bg); border-color: var(--success-border); }
-  .stat.total .value { color: var(--success-text); }
-  .empty-hint { color: var(--muted); font-size: 0.85rem; padding: 10px 2px; }
-  .footer-note { color: var(--muted); font-size: 0.78rem; margin-top: 24px; text-align: center; }
-  .save-indicator {
-    display: inline-block;
-    font-size: 0.78rem;
-    color: var(--success-text);
-    opacity: 0;
-    transition: opacity 0.3s;
-    margin-left: 8px;
+  .odo-stat .o-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+  .odo-stat .o-value { font-family: var(--font-mono); font-size: 1.35rem; font-weight: 700; color: var(--accent-ink); }
+  :root[data-theme="dark"] .odo-stat .o-value { color: var(--accent); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .odo-stat .o-value { color: var(--accent); } }
+  .odo-stat .o-unit { font-size: 0.75rem; font-weight: 400; color: var(--text-muted); margin-left: 2px; }
+
+  /* ---------- Ledger rows ---------- */
+  .row-header {
+    display: flex;
+    gap: 10px;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 0 4px 8px;
   }
-  .save-indicator.show { opacity: 1; }
-  @media (max-width: 640px) {
-    .row-entry, .row-header { grid-template-columns: 1fr 1fr; }
-    .row-header span:nth-child(3), .row-header span:nth-child(4) { display: none; }
+  .row-header span:nth-child(1) { flex: 0 0 150px; }
+  .row-header span:nth-child(2) { flex: 1 1 160px; }
+  .row-header span:nth-child(3) { flex: 0 0 100px; text-align: right; }
+  #entries { display: flex; flex-direction: column; gap: 8px; }
+  .row-entry {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 8px 8px 10px;
+    border-left: 3px solid var(--cat-sonstiges);
+    border-radius: 6px;
+    background: var(--surface-alt);
+  }
+  .row-entry select { flex: 0 0 150px; }
+  .row-entry .note-input { flex: 1 1 160px; min-width: 120px; }
+  .row-entry .amount-input { flex: 0 0 100px; text-align: right; }
+  .row-entry input, .row-entry select { padding: 8px 9px; font-size: 0.88rem; background: var(--surface); }
+  .row-entry .btn-icon-del { flex: 0 0 auto; }
+
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: 9px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 10px 16px;
+    font-family: var(--font-body);
+  }
+  .btn-primary { background: var(--accent); color: #06231F; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-ghost { background: var(--accent-soft); color: var(--accent-ink); }
+  :root[data-theme="dark"] .btn-ghost { color: var(--accent); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn-ghost { color: var(--accent); } }
+  .btn-ghost:hover { filter: brightness(0.95); }
+  .btn-icon-del {
+    background: transparent;
+    color: var(--danger);
+    padding: 6px 8px;
+    font-size: 1rem;
+    line-height: 1;
+    border-radius: 7px;
+  }
+  .btn-icon-del:hover { background: var(--danger-soft); }
+  .btn-danger { background: var(--danger); color: #2A0D08; }
+  .btn-danger:hover { background: var(--danger-hover); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .empty-hint { color: var(--text-muted); font-size: 0.85rem; padding: 14px 4px; text-align: center; border: 1px dashed var(--border); border-radius: 8px; }
+
+  /* ---------- Summary bars ---------- */
+  .cat-bars { display: flex; flex-direction: column; gap: 10px; }
+  .cat-bar-row { display: grid; grid-template-columns: 130px 1fr 90px; align-items: center; gap: 12px; }
+  .cat-bar-row.is-diesel { padding-top: 10px; margin-top: 2px; border-top: 1px dashed var(--border); }
+  .cat-bar-row .cname { font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
+  .cat-bar-track { height: 8px; border-radius: 5px; background: var(--surface-alt); overflow: hidden; }
+  .cat-bar-fill { height: 100%; border-radius: 5px; transition: width 0.35s ease; }
+  .cat-bar-row .camount { font-family: var(--font-mono); font-size: 0.85rem; text-align: right; }
+
+  .summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+  .stat { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .stat .label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+  .stat .value { font-family: var(--font-mono); font-size: 1.2rem; font-weight: 700; }
+  .stat.total { background: var(--accent-soft); border-color: var(--accent); }
+  .stat.total .value { color: var(--accent-ink); font-size: 1.4rem; }
+  :root[data-theme="dark"] .stat.total .value { color: var(--accent); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .stat.total .value { color: var(--accent); } }
+
+  .footer-note { color: var(--text-muted); font-size: 0.76rem; margin-top: 8px; text-align: center; }
+
+  @media (max-width: 620px) {
+    .row-header { display: none; }
+    .odometer-grid { grid-template-columns: 1fr 1fr; }
+    .tripbar-readouts { gap: 14px; }
+    .cat-bar-row { grid-template-columns: 100px 1fr 74px; gap: 8px; }
   }
 </style>
-</head>
-<body>
-<div class="wrap">
-  <h1>🏖️ Urlaubskosten 2026</h1>
-  <div class="subtitle">Alle Ausgaben im Blick – wird automatisch im Browser gespeichert.<span id="saveIndicator" class="save-indicator">✓ gespeichert</span></div>
 
-  <div class="card">
-    <h2>Reisedaten</h2>
-    <div class="grid">
-      <div class="field">
-        <label for="tripName">Reisebezeichnung</label>
-        <input type="text" id="tripName" placeholder="z. B. Italien 2026" />
+<div class="tripbar">
+  <div class="tripbar-inner">
+    <div class="tripbar-title">Urlaubskosten 2026</div>
+    <div class="tripbar-readouts">
+      <div class="readout">
+        <div class="r-label">Verbrauch</div>
+        <div class="r-value tabnum" id="tbVerbrauch">–</div>
       </div>
-      <div class="field">
-        <label for="tripStart">Start</label>
-        <input type="date" id="tripStart" />
+      <div class="readout">
+        <div class="r-label">Gesamt</div>
+        <div class="r-value tabnum" id="tbGesamt">0,00 €</div>
       </div>
-      <div class="field">
-        <label for="tripEnd">Ende</label>
-        <input type="date" id="tripEnd" />
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <p class="lede">Reisekasse für unterwegs — läuft nur in diesem Browser, nichts wird hochgeladen.<span class="save-indicator" id="saveIndicator">● gespeichert</span></p>
+
+  <section class="panel">
+    <h2><span class="swatch" style="background:var(--cat-unterkunft)"></span>Ausgaben</h2>
+    <p class="panel-sub">Unterkunft, Essen gehen, Einkauf, Besuche, Sonstiges — die farbige Kante links zeigt die Kategorie.</p>
+    <div class="row-header">
+      <span>Kategorie</span><span>Notiz</span><span>Betrag (€)</span><span></span>
+    </div>
+    <div id="entries"></div>
+    <div id="emptyHint" class="empty-hint">Noch keine Ausgaben erfasst — füge unten die erste hinzu.</div>
+    <div class="actions">
+      <button class="btn-ghost" id="addEntry">+ Ausgabe hinzufügen</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head-row">
+      <div>
+        <h2><span class="swatch" style="background:var(--accent)"></span>Zusammenfassung</h2>
       </div>
-      <div class="field">
-        <label for="persons">Anzahl Personen</label>
+      <div class="inline-field">
+        <label for="persons">Personen</label>
         <input type="number" id="persons" min="1" value="1" />
       </div>
     </div>
-  </div>
-
-  <div class="card">
-    <h2>⛽ Kilometerstand &amp; Verbrauch</h2>
-    <div class="grid">
-      <div class="field">
-        <label for="kmStart">Kilometerstand Anfang</label>
-        <input type="number" id="kmStart" min="0" step="1" placeholder="z. B. 45000" />
-      </div>
-      <div class="field">
-        <label for="kmEnd">Kilometerstand Ende</label>
-        <input type="number" id="kmEnd" min="0" step="1" placeholder="z. B. 45850" />
-      </div>
-      <div class="field">
-        <label for="dieselLiter">Getankte Menge (Liter, gesamt)</label>
-        <input type="number" id="dieselLiter" min="0" step="0.01" placeholder="z. B. 68.5" />
-      </div>
-    </div>
-    <div class="stat-grid" style="margin-top:16px;">
+    <div class="cat-bars" id="catBars"></div>
+    <div class="summary-stats">
       <div class="stat">
-        <div class="label">Gefahrene Strecke</div>
-        <div class="value" id="statDistanz">– km</div>
-      </div>
-      <div class="stat">
-        <div class="label">Ø Verbrauch</div>
-        <div class="value" id="statVerbrauch">– l/100km</div>
-      </div>
-      <div class="stat">
-        <div class="label">Ø Kosten pro km</div>
-        <div class="value" id="statKmKosten">– €/km</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>💶 Ausgaben</h2>
-    <div class="row-header">
-      <span>Datum</span>
-      <span>Kategorie</span>
-      <span>Notiz</span>
-      <span>Betrag (€)</span>
-      <span></span>
-    </div>
-    <div id="entries"></div>
-    <div id="emptyHint" class="empty-hint">Noch keine Ausgaben erfasst – füge unten die erste hinzu.</div>
-    <div class="actions">
-      <button class="btn-secondary" id="addEntry">+ Ausgabe hinzufügen</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>📊 Zusammenfassung</h2>
-    <div class="stat-grid" id="summaryGrid"></div>
-    <div class="stat-grid" style="margin-top:12px;">
-      <div class="stat">
-        <div class="label">Kosten pro Tag</div>
-        <div class="value" id="statProTag">–</div>
-      </div>
-      <div class="stat">
-        <div class="label">Kosten pro Person</div>
-        <div class="value" id="statProPerson">–</div>
+        <div class="label">Pro Person</div>
+        <div class="value tabnum" id="statProPerson">–</div>
       </div>
       <div class="stat total">
         <div class="label">Gesamtsumme</div>
-        <div class="value" id="statGesamt">0,00 €</div>
+        <div class="value tabnum" id="statGesamt">0,00 €</div>
       </div>
     </div>
     <div class="actions">
-      <button class="btn-secondary" id="exportCsv">CSV exportieren</button>
+      <button class="btn-ghost" id="exportCsv">CSV exportieren</button>
       <button class="btn-danger" id="resetAll">Alles zurücksetzen</button>
     </div>
-  </div>
+  </section>
 
-  <div class="footer-note">Daten werden nur lokal in diesem Browser gespeichert (localStorage) – kein Server, keine Cloud.</div>
+  <section class="panel">
+    <h2><span class="swatch" style="background:var(--cat-diesel)"></span>Kilometerstand &amp; Verbrauch</h2>
+    <p class="panel-sub">Start‑ und Endkilometer sowie die insgesamt getankte Dieselmenge und deren Kosten ergeben Strecke und Ø‑Verbrauch.</p>
+    <div class="grid">
+      <div class="field">
+        <label for="kmStart">Kilometerstand Anfang</label>
+        <input type="number" id="kmStart" min="0" step="1" placeholder="45000" />
+      </div>
+      <div class="field">
+        <label for="kmEnd">Kilometerstand Ende</label>
+        <input type="number" id="kmEnd" min="0" step="1" placeholder="45850" />
+      </div>
+      <div class="field">
+        <label for="dieselLiter">Getankt gesamt (Liter)</label>
+        <input type="number" id="dieselLiter" min="0" step="0.01" placeholder="68,5" />
+      </div>
+      <div class="field">
+        <label for="dieselKosten">Dieselkosten gesamt (€)</label>
+        <input type="number" id="dieselKosten" min="0" step="0.01" placeholder="110,00" />
+      </div>
+    </div>
+    <div class="odometer-grid">
+      <div class="odo-stat">
+        <div class="o-label">Strecke</div>
+        <div class="o-value tabnum" id="statDistanz">–<span class="o-unit">km</span></div>
+      </div>
+      <div class="odo-stat">
+        <div class="o-label">Ø Verbrauch</div>
+        <div class="o-value tabnum" id="statVerbrauch">–<span class="o-unit">l/100km</span></div>
+      </div>
+      <div class="odo-stat">
+        <div class="o-label">Ø Dieselkosten</div>
+        <div class="o-value tabnum" id="statKmKosten">–<span class="o-unit">€/km</span></div>
+      </div>
+    </div>
+  </section>
+
+  <p class="footer-note">Daten werden ausschließlich lokal in diesem Browser gespeichert (localStorage).</p>
 </div>
 
 <script>
 (function () {
-  const STORAGE_KEY = "urlaubskosten2026";
+  const STORAGE_KEY = "urlaubskosten2026_artifact";
   const CATEGORIES = [
-    { id: "essen", label: "Essen gehen" },
-    { id: "geschaefte", label: "Geschäfte / Einkäufe" },
-    { id: "diesel", label: "Diesel / Tanken" },
-    { id: "unterkunft", label: "Unterkunft" },
-    { id: "sonstiges", label: "Sonstiges" },
+    { id: "unterkunft", label: "Unterkunft", color: "var(--cat-unterkunft)" },
+    { id: "essen", label: "Essen gehen", color: "var(--cat-essen)" },
+    { id: "einkauf", label: "Einkauf", color: "var(--cat-einkauf)" },
+    { id: "besuche", label: "Besuche", color: "var(--cat-besuche)" },
+    { id: "sonstiges", label: "Sonstiges", color: "var(--cat-sonstiges)" },
   ];
+  const DIESEL_CAT = { id: "diesel", label: "Diesel", color: "var(--cat-diesel)" };
+  const catById = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
 
   const el = (id) => document.getElementById(id);
   const entriesContainer = el("entries");
   const emptyHint = el("emptyHint");
 
   let state = {
-    tripName: "",
-    tripStart: "",
-    tripEnd: "",
     persons: 1,
-    kmStart: "",
-    kmEnd: "",
-    dieselLiter: "",
+    kmStart: "", kmEnd: "", dieselLiter: "", dieselKosten: "",
     entries: [],
   };
 
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        state = Object.assign(state, parsed);
-      }
-    } catch (e) {
-      console.warn("Konnte gespeicherte Daten nicht laden", e);
-    }
-    if (!state.entries || state.entries.length === 0) {
-      state.entries = [];
-    }
+      if (raw) state = Object.assign(state, JSON.parse(raw));
+    } catch (e) { console.warn("Konnte gespeicherte Daten nicht laden", e); }
+    if (!state.entries) state.entries = [];
   }
 
   let saveTimeout;
   function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    const indicator = el("saveIndicator");
-    indicator.classList.add("show");
+    const ind = el("saveIndicator");
+    ind.classList.add("show");
     clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => indicator.classList.remove("show"), 1200);
+    saveTimeout = setTimeout(() => ind.classList.remove("show"), 1100);
   }
 
-  function formatEuro(value) {
-    if (!isFinite(value)) return "0,00 €";
-    return value.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+  function formatEuro(v) {
+    if (!isFinite(v)) return "0,00 €";
+    return v.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
   }
-
-  function formatNumber(value, decimals) {
-    return value.toLocaleString("de-DE", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  function formatNumber(v, d) {
+    return v.toLocaleString("de-DE", { minimumFractionDigits: d, maximumFractionDigits: d });
   }
-
-  function uid() {
-    return Math.random().toString(36).slice(2, 10);
-  }
+  function uid() { return Math.random().toString(36).slice(2, 10); }
 
   function addEntry(entry) {
-    state.entries.push(Object.assign({
-      id: uid(),
-      date: "",
-      category: CATEGORIES[0].id,
-      note: "",
-      amount: "",
-    }, entry || {}));
+    state.entries.push(Object.assign({ id: uid(), category: CATEGORIES[0].id, note: "", amount: "" }, entry || {}));
     render();
     saveState();
   }
-
   function removeEntry(id) {
     state.entries = state.entries.filter((e) => e.id !== id);
     render();
@@ -327,60 +495,43 @@
     state.entries.forEach((entry) => {
       const row = document.createElement("div");
       row.className = "row-entry";
-
-      const dateInput = document.createElement("input");
-      dateInput.type = "date";
-      dateInput.value = entry.date || "";
-      dateInput.addEventListener("input", () => {
-        entry.date = dateInput.value;
-        saveState();
-      });
+      row.style.borderLeftColor = (catById[entry.category] || catById.sonstiges).color;
 
       const catSelect = document.createElement("select");
       CATEGORIES.forEach((c) => {
         const opt = document.createElement("option");
-        opt.value = c.id;
-        opt.textContent = c.label;
+        opt.value = c.id; opt.textContent = c.label;
         if (entry.category === c.id) opt.selected = true;
         catSelect.appendChild(opt);
       });
       catSelect.addEventListener("change", () => {
         entry.category = catSelect.value;
-        saveState();
+        row.style.borderLeftColor = catById[entry.category].color;
+        saveState(); renderSummary();
       });
 
       const noteInput = document.createElement("input");
       noteInput.type = "text";
+      noteInput.className = "note-input";
       noteInput.placeholder = "Notiz (optional)";
       noteInput.value = entry.note || "";
-      noteInput.addEventListener("input", () => {
-        entry.note = noteInput.value;
-        saveState();
-      });
+      noteInput.addEventListener("input", () => { entry.note = noteInput.value; saveState(); });
 
       const amountInput = document.createElement("input");
       amountInput.type = "number";
-      amountInput.step = "0.01";
-      amountInput.min = "0";
+      amountInput.step = "0.01"; amountInput.min = "0";
       amountInput.placeholder = "0,00";
+      amountInput.className = "amount-input";
       amountInput.value = entry.amount === "" || entry.amount === undefined ? "" : entry.amount;
-      amountInput.addEventListener("input", () => {
-        entry.amount = amountInput.value;
-        saveState();
-        renderSummary();
-      });
+      amountInput.addEventListener("input", () => { entry.amount = amountInput.value; saveState(); renderSummary(); });
 
       const delBtn = document.createElement("button");
-      delBtn.className = "btn-danger-ghost";
+      delBtn.className = "btn-icon-del";
       delBtn.title = "Eintrag löschen";
       delBtn.textContent = "✕";
       delBtn.addEventListener("click", () => removeEntry(entry.id));
 
-      row.appendChild(dateInput);
-      row.appendChild(catSelect);
-      row.appendChild(noteInput);
-      row.appendChild(amountInput);
-      row.appendChild(delBtn);
+      row.append(catSelect, noteInput, amountInput, delBtn);
       entriesContainer.appendChild(row);
     });
   }
@@ -390,67 +541,62 @@
     CATEGORIES.forEach((c) => (totals[c.id] = 0));
     state.entries.forEach((e) => {
       const amount = parseFloat(e.amount);
-      if (!isNaN(amount) && totals.hasOwnProperty(e.category)) {
-        totals[e.category] += amount;
-      }
+      if (!isNaN(amount) && totals.hasOwnProperty(e.category)) totals[e.category] += amount;
     });
-    const gesamt = Object.values(totals).reduce((a, b) => a + b, 0);
+    const dieselKosten = parseFloat(state.dieselKosten) || 0;
+    const gesamt = Object.values(totals).reduce((a, b) => a + b, 0) + dieselKosten;
 
-    const grid = el("summaryGrid");
-    grid.innerHTML = "";
-    CATEGORIES.forEach((c) => {
-      const div = document.createElement("div");
-      div.className = "stat";
-      div.innerHTML = `<div class="label">${c.label}</div><div class="value">${formatEuro(totals[c.id])}</div>`;
-      grid.appendChild(div);
-    });
+    const bars = el("catBars");
+    bars.innerHTML = "";
+    const renderBar = (c, amount, extraClass) => {
+      const pct = gesamt > 0 ? Math.max((amount / gesamt) * 100, amount > 0 ? 2 : 0) : 0;
+      const row = document.createElement("div");
+      row.className = "cat-bar-row" + (extraClass ? " " + extraClass : "");
+      row.innerHTML = `
+        <div class="cname"><span class="swatch" style="background:${c.color}"></span>${c.label}</div>
+        <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%;background:${c.color}"></div></div>
+        <div class="camount tabnum">${formatEuro(amount)}</div>`;
+      bars.appendChild(row);
+    };
+    CATEGORIES.forEach((c) => renderBar(c, totals[c.id]));
+    renderBar(DIESEL_CAT, dieselKosten, "is-diesel");
 
     el("statGesamt").textContent = formatEuro(gesamt);
-
-    // Kosten pro Tag
-    const start = state.tripStart ? new Date(state.tripStart) : null;
-    const end = state.tripEnd ? new Date(state.tripEnd) : null;
-    let days = null;
-    if (start && end && !isNaN(start) && !isNaN(end)) {
-      days = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
-      if (days < 1) days = null;
-    }
-    el("statProTag").textContent = days ? formatEuro(gesamt / days) + ` (${days} Tage)` : "–";
+    el("tbGesamt").textContent = formatEuro(gesamt);
 
     const persons = parseInt(state.persons, 10) || 1;
     el("statProPerson").textContent = persons > 0 ? formatEuro(gesamt / persons) : "–";
 
-    return { totals, gesamt, days, persons };
+    return { totals, dieselKosten, gesamt, persons };
   }
 
   function renderKmStats() {
     const kmStart = parseFloat(state.kmStart);
     const kmEnd = parseFloat(state.kmEnd);
     const liter = parseFloat(state.dieselLiter);
+    const dieselKosten = parseFloat(state.dieselKosten);
     let distanz = null;
 
     if (!isNaN(kmStart) && !isNaN(kmEnd) && kmEnd > kmStart) {
       distanz = kmEnd - kmStart;
-      el("statDistanz").textContent = formatNumber(distanz, 0) + " km";
+      el("statDistanz").innerHTML = formatNumber(distanz, 0) + '<span class="o-unit">km</span>';
     } else {
-      el("statDistanz").textContent = "– km";
+      el("statDistanz").innerHTML = '–<span class="o-unit">km</span>';
     }
 
+    let verbrauchText = "–";
     if (distanz && !isNaN(liter) && liter > 0) {
-      const verbrauch = (liter / distanz) * 100;
-      el("statVerbrauch").textContent = formatNumber(verbrauch, 2) + " l/100km";
+      verbrauchText = formatNumber((liter / distanz) * 100, 2);
+      el("statVerbrauch").innerHTML = verbrauchText + '<span class="o-unit">l/100km</span>';
     } else {
-      el("statVerbrauch").textContent = "– l/100km";
+      el("statVerbrauch").innerHTML = '–<span class="o-unit">l/100km</span>';
     }
+    el("tbVerbrauch").textContent = verbrauchText === "–" ? "–" : verbrauchText + " l/100km";
 
-    // Kosten pro km auf Basis der Diesel-Kategorie
-    const dieselKosten = state.entries
-      .filter((e) => e.category === "diesel")
-      .reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
-    if (distanz && dieselKosten > 0) {
-      el("statKmKosten").textContent = formatNumber(dieselKosten / distanz, 3) + " €/km";
+    if (distanz && !isNaN(dieselKosten) && dieselKosten > 0) {
+      el("statKmKosten").innerHTML = formatNumber(dieselKosten / distanz, 3) + '<span class="o-unit">€/km</span>';
     } else {
-      el("statKmKosten").textContent = "– €/km";
+      el("statKmKosten").innerHTML = '–<span class="o-unit">€/km</span>';
     }
   }
 
@@ -461,51 +607,36 @@
   }
 
   function bindHeaderFields() {
-    const map = {
-      tripName: "tripName",
-      tripStart: "tripStart",
-      tripEnd: "tripEnd",
-      persons: "persons",
-      kmStart: "kmStart",
-      kmEnd: "kmEnd",
-      dieselLiter: "dieselLiter",
-    };
+    const map = { persons: "persons", kmStart: "kmStart", kmEnd: "kmEnd", dieselLiter: "dieselLiter", dieselKosten: "dieselKosten" };
     Object.entries(map).forEach(([stateKey, elId]) => {
       const node = el(elId);
       node.value = state[stateKey] || (stateKey === "persons" ? 1 : "");
-      node.addEventListener("input", () => {
-        state[stateKey] = node.value;
-        saveState();
-        render();
-      });
+      node.addEventListener("input", () => { state[stateKey] = node.value; saveState(); render(); });
     });
   }
 
   function exportCsv() {
-    const rows = [["Datum", "Kategorie", "Notiz", "Betrag (€)"]];
+    const rows = [["Kategorie", "Notiz", "Betrag (€)"]];
     state.entries.forEach((e) => {
-      const catLabel = (CATEGORIES.find((c) => c.id === e.category) || {}).label || e.category;
-      rows.push([e.date || "", catLabel, e.note || "", e.amount || "0"]);
+      const label = (catById[e.category] || {}).label || e.category;
+      rows.push([label, e.note || "", e.amount || "0"]);
     });
-    const csv = rows
-      .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";"))
-      .join("\n");
+    const dieselKosten = parseFloat(state.dieselKosten) || 0;
+    if (dieselKosten > 0) rows.push(["Diesel", "Kilometerstand", String(dieselKosten)]);
+    const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
     const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    const name = (state.tripName || "urlaubskosten").replace(/[^a-z0-9äöüß_-]+/gi, "_");
-    a.download = `${name}.csv`;
+    a.download = "urlaubskosten_" + new Date().toISOString().slice(0, 10) + ".csv";
     a.click();
     URL.revokeObjectURL(url);
   }
 
   function resetAll() {
     if (!confirm("Wirklich alle Daten löschen? Dies kann nicht rückgängig gemacht werden.")) return;
-    state = { tripName: "", tripStart: "", tripEnd: "", persons: 1, kmStart: "", kmEnd: "", dieselLiter: "", entries: [] };
-    saveState();
-    bindHeaderFields();
-    render();
+    state = { persons: 1, kmStart: "", kmEnd: "", dieselLiter: "", dieselKosten: "", entries: [] };
+    saveState(); bindHeaderFields(); render();
   }
 
   el("addEntry").addEventListener("click", () => addEntry());
@@ -514,11 +645,8 @@
 
   loadState();
   bindHeaderFields();
-  if (state.entries.length === 0) {
-    addEntry({ date: new Date().toISOString().slice(0, 10) });
-  } else {
-    render();
-  }
+  if (state.entries.length === 0) addEntry();
+  else render();
 })();
 </script>
 </body>
