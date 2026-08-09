@@ -383,13 +383,12 @@
       </div>
     </div>
     <div class="actions">
-      <button class="btn-ghost" id="exportCsv">CSV exportieren</button>
-      <button class="btn-ghost" id="exportState">Stand exportieren</button>
-      <button class="btn-ghost" id="importState">Stand importieren</button>
-      <input type="file" id="importFile" accept="application/json,.json" style="display:none" />
+      <button class="btn-ghost" id="exportCsv">CSV kopieren</button>
+      <button class="btn-ghost" id="exportState">Stand kopieren</button>
+      <button class="btn-ghost" id="importState">Stand einfügen</button>
       <button class="btn-danger" id="resetAll">Alles zurücksetzen</button>
     </div>
-    <p class="panel-sub" style="margin:10px 0 0;">"Stand exportieren" sichert alle Eingaben in einer Datei — die kann eine andere Person über "Stand importieren" bei sich einspielen, um mit demselben Stand weiterzumachen. Kein Live‑Abgleich, nur manueller Austausch.</p>
+    <p class="panel-sub" style="margin:10px 0 0;">"Stand kopieren" kopiert alle Eingaben als Text (Zwischenablage) — den kannst du z. B. per WhatsApp/Mail an jemanden schicken. Die andere Person fügt ihn bei sich über "Stand einfügen" ein, um mit demselben Stand weiterzumachen. Kein Live‑Abgleich, nur manueller Austausch.</p>
   </section>
 
   <section class="panel">
@@ -619,7 +618,24 @@
     });
   }
 
-  function exportCsv() {
+  function copyText(text) {
+    let copied = false;
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      ta.style.top = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      copied = document.execCommand("copy");
+      document.body.removeChild(ta);
+    } catch (e) { copied = false; }
+    return copied;
+  }
+
+  function buildCsv() {
     const rows = [["Kategorie", "Notiz", "Betrag (€)"]];
     state.entries.forEach((e) => {
       const label = (catById[e.category] || {}).label || e.category;
@@ -627,14 +643,18 @@
     });
     const dieselKosten = parseFloat(state.dieselKosten) || 0;
     if (dieselKosten > 0) rows.push(["Diesel", "Kilometerstand", String(dieselKosten)]);
-    const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
-    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "urlaubskosten_" + new Date().toISOString().slice(0, 10) + ".csv";
-    a.click();
-    URL.revokeObjectURL(url);
+    return rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
+  }
+
+  function exportCsv() {
+    const text = buildCsv();
+    const copied = copyText(text);
+    prompt(
+      copied
+        ? "CSV wurde in die Zwischenablage kopiert — direkt in eine Nachricht/Notiz einfügen. Zur Sicherheit hier auch als Text markiert:"
+        : "Automatisches Kopieren hat nicht geklappt. Text unten antippen und halten → Alles auswählen → Kopieren:",
+      text
+    );
   }
 
   function resetAll() {
@@ -644,48 +664,42 @@
   }
 
   function exportState() {
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "urlaubskosten_stand_" + new Date().toISOString().slice(0, 10) + ".json";
-    a.click();
-    URL.revokeObjectURL(url);
+    const text = JSON.stringify(state);
+    const copied = copyText(text);
+    prompt(
+      copied
+        ? "Stand wurde in die Zwischenablage kopiert — direkt in eine Nachricht (WhatsApp/Mail) einfügen. Zur Sicherheit hier auch als Text markiert:"
+        : "Automatisches Kopieren hat nicht geklappt. Text unten antippen und halten → Alles auswählen → Kopieren:",
+      text
+    );
   }
 
-  function importStateFromFile(file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      let imported;
-      try {
-        imported = JSON.parse(reader.result);
-      } catch (e) {
-        alert("Diese Datei ist kein gültiger Urlaubskosten-Stand.");
-        return;
-      }
-      if (!imported || typeof imported !== "object" || !Array.isArray(imported.entries)) {
-        alert("Diese Datei ist kein gültiger Urlaubskosten-Stand.");
-        return;
-      }
-      if (!confirm("Aktuelle Daten werden durch die importierte Datei ersetzt. Fortfahren?")) return;
-      state = Object.assign(
-        { persons: 1, kmStart: "", kmEnd: "", dieselLiter: "", dieselKosten: "", entries: [] },
-        imported
-      );
-      saveState(); bindHeaderFields(); render();
-    };
-    reader.readAsText(file);
+  function importStateFromText() {
+    const text = prompt("Stand einfügen: Text hier hineinkopieren, den du von der anderen Person über 'Stand kopieren' bekommen hast:", "");
+    if (text === null || text.trim() === "") return;
+    let imported;
+    try {
+      imported = JSON.parse(text);
+    } catch (e) {
+      alert("Das ist kein gültiger Urlaubskosten-Stand (Text konnte nicht gelesen werden).");
+      return;
+    }
+    if (!imported || typeof imported !== "object" || !Array.isArray(imported.entries)) {
+      alert("Das ist kein gültiger Urlaubskosten-Stand.");
+      return;
+    }
+    if (!confirm("Aktuelle Daten werden durch den eingefügten Stand ersetzt. Fortfahren?")) return;
+    state = Object.assign(
+      { persons: 1, kmStart: "", kmEnd: "", dieselLiter: "", dieselKosten: "", entries: [] },
+      imported
+    );
+    saveState(); bindHeaderFields(); render();
   }
 
   el("addEntry").addEventListener("click", () => addEntry());
   el("exportCsv").addEventListener("click", exportCsv);
   el("exportState").addEventListener("click", exportState);
-  el("importState").addEventListener("click", () => el("importFile").click());
-  el("importFile").addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (file) importStateFromFile(file);
-    e.target.value = "";
-  });
+  el("importState").addEventListener("click", importStateFromText);
   el("resetAll").addEventListener("click", resetAll);
 
   loadState();
