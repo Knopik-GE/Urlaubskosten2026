@@ -294,6 +294,50 @@
   .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
   .empty-hint { color: var(--text-muted); font-size: 0.85rem; padding: 14px 4px; text-align: center; border: 1px dashed var(--border); border-radius: 8px; }
 
+  /* ---------- Modal (replaces browser prompt/alert/confirm) ---------- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 15, 13, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+  }
+  .modal-overlay[hidden] { display: none; }
+  .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .modal-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; margin: 0 0 8px; }
+  .modal-message { font-size: 0.86rem; color: var(--text-muted); margin: 0 0 14px; }
+  .modal-textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 10px 11px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface-alt);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    resize: vertical;
+    margin-bottom: 10px;
+  }
+  .modal-textarea[hidden] { display: none; }
+  .modal-textarea[readonly] { background: var(--accent-soft); }
+  .modal-error { color: var(--danger); font-size: 0.84rem; margin: -2px 0 12px; }
+  .modal-actions { display: flex; justify-content: flex-end; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .modal-actions-right { display: flex; gap: 10px; margin-left: auto; }
+
   /* ---------- Summary bars ---------- */
   .cat-bars { display: flex; flex-direction: column; gap: 10px; }
   .cat-bar-row { display: grid; grid-template-columns: 130px 1fr 90px; align-items: center; gap: 12px; }
@@ -429,6 +473,22 @@
   </section>
 
   <p class="footer-note">Daten werden ausschließlich lokal in diesem Browser gespeichert (localStorage).</p>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true">
+    <h3 class="modal-title" id="modalTitle"></h3>
+    <p class="modal-message" id="modalMessage"></p>
+    <textarea class="modal-textarea" id="modalTextarea" rows="7"></textarea>
+    <p class="modal-error" id="modalError" hidden></p>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="modalCopyBtn" hidden>In Zwischenablage kopieren</button>
+      <div class="modal-actions-right">
+        <button class="btn-ghost" id="modalCancelBtn">Abbrechen</button>
+        <button class="btn-primary" id="modalConfirmBtn">OK</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -646,54 +706,157 @@
     return rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
   }
 
+  // ---------- Modal (replaces window.prompt/alert/confirm, which many embedded browsers suppress) ----------
+  let modalOnConfirm = null;
+
+  function openModal(opts) {
+    const {
+      title, message, textValue = "", readOnly = false, showTextarea = true,
+      confirmLabel = "OK", cancelLabel = "Abbrechen", showCancel = true,
+      showCopyBtn = false, danger = false, onConfirm = null,
+    } = opts;
+
+    el("modalTitle").textContent = title;
+    el("modalMessage").textContent = message;
+
+    const ta = el("modalTextarea");
+    ta.hidden = !showTextarea;
+    if (showTextarea) {
+      ta.value = textValue;
+      ta.readOnly = readOnly;
+    }
+
+    el("modalError").hidden = true;
+    el("modalCopyBtn").hidden = !showCopyBtn;
+    el("modalCancelBtn").hidden = !showCancel;
+    el("modalCancelBtn").textContent = cancelLabel;
+
+    const confirmBtn = el("modalConfirmBtn");
+    confirmBtn.textContent = confirmLabel;
+    confirmBtn.className = danger ? "btn-danger" : "btn-primary";
+
+    modalOnConfirm = onConfirm;
+    el("modalOverlay").hidden = false;
+
+    if (showTextarea) {
+      ta.focus();
+      if (readOnly) ta.select();
+    }
+  }
+
+  function closeModal() {
+    el("modalOverlay").hidden = true;
+    modalOnConfirm = null;
+  }
+
+  function showModalError(msg) {
+    const e = el("modalError");
+    e.textContent = msg;
+    e.hidden = false;
+  }
+
+  el("modalCancelBtn").addEventListener("click", closeModal);
+  el("modalConfirmBtn").addEventListener("click", () => {
+    const ta = el("modalTextarea");
+    const value = ta.hidden ? null : ta.value;
+    if (modalOnConfirm) {
+      const result = modalOnConfirm(value);
+      if (result === false) return; // validation failed — keep modal open, error already shown
+    }
+    closeModal();
+  });
+  el("modalCopyBtn").addEventListener("click", () => {
+    const ta = el("modalTextarea");
+    ta.focus();
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    if (!ok && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(ta.value).catch(() => {});
+    }
+    const btn = el("modalCopyBtn");
+    const original = btn.textContent;
+    btn.textContent = "Kopiert ✓";
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  });
+  el("modalOverlay").addEventListener("click", (e) => {
+    if (e.target.id === "modalOverlay") closeModal();
+  });
+
   function exportCsv() {
     const text = buildCsv();
-    const copied = copyText(text);
-    prompt(
-      copied
-        ? "CSV wurde in die Zwischenablage kopiert — direkt in eine Nachricht/Notiz einfügen. Zur Sicherheit hier auch als Text markiert:"
-        : "Automatisches Kopieren hat nicht geklappt. Text unten antippen und halten → Alles auswählen → Kopieren:",
-      text
-    );
+    copyText(text);
+    openModal({
+      title: "CSV kopieren",
+      message: "Text unten ist (falls unterstützt) schon in der Zwischenablage. Sonst: Text antippen, markieren und auf \"In Zwischenablage kopieren\" tippen — dann in WhatsApp/Mail/Notizen einfügen.",
+      textValue: text,
+      readOnly: true,
+      showCopyBtn: true,
+      confirmLabel: "Fertig",
+      showCancel: false,
+    });
   }
 
   function resetAll() {
-    if (!confirm("Wirklich alle Daten löschen? Dies kann nicht rückgängig gemacht werden.")) return;
-    state = { persons: 1, kmStart: "", kmEnd: "", dieselLiter: "", dieselKosten: "", entries: [] };
-    saveState(); bindHeaderFields(); render();
+    openModal({
+      title: "Alles zurücksetzen?",
+      message: "Wirklich alle Daten löschen? Dies kann nicht rückgängig gemacht werden.",
+      showTextarea: false,
+      confirmLabel: "Löschen",
+      cancelLabel: "Abbrechen",
+      danger: true,
+      onConfirm: () => {
+        state = { persons: 1, kmStart: "", kmEnd: "", dieselLiter: "", dieselKosten: "", entries: [] };
+        saveState(); bindHeaderFields(); render();
+      },
+    });
   }
 
   function exportState() {
     const text = JSON.stringify(state);
-    const copied = copyText(text);
-    prompt(
-      copied
-        ? "Stand wurde in die Zwischenablage kopiert — direkt in eine Nachricht (WhatsApp/Mail) einfügen. Zur Sicherheit hier auch als Text markiert:"
-        : "Automatisches Kopieren hat nicht geklappt. Text unten antippen und halten → Alles auswählen → Kopieren:",
-      text
-    );
+    copyText(text);
+    openModal({
+      title: "Stand kopieren",
+      message: "Text unten ist (falls unterstützt) schon in der Zwischenablage. Sonst: Text antippen, markieren und auf \"In Zwischenablage kopieren\" tippen — dann in WhatsApp/Mail einfügen und verschicken.",
+      textValue: text,
+      readOnly: true,
+      showCopyBtn: true,
+      confirmLabel: "Fertig",
+      showCancel: false,
+    });
   }
 
   function importStateFromText() {
-    const text = prompt("Stand einfügen: Text hier hineinkopieren, den du von der anderen Person über 'Stand kopieren' bekommen hast:", "");
-    if (text === null || text.trim() === "") return;
-    let imported;
-    try {
-      imported = JSON.parse(text);
-    } catch (e) {
-      alert("Das ist kein gültiger Urlaubskosten-Stand (Text konnte nicht gelesen werden).");
-      return;
-    }
-    if (!imported || typeof imported !== "object" || !Array.isArray(imported.entries)) {
-      alert("Das ist kein gültiger Urlaubskosten-Stand.");
-      return;
-    }
-    if (!confirm("Aktuelle Daten werden durch den eingefügten Stand ersetzt. Fortfahren?")) return;
-    state = Object.assign(
-      { persons: 1, kmStart: "", kmEnd: "", dieselLiter: "", dieselKosten: "", entries: [] },
-      imported
-    );
-    saveState(); bindHeaderFields(); render();
+    openModal({
+      title: "Stand einfügen",
+      message: "Text hier einfügen (antippen und halten → Einfügen), den du von der anderen Person über \"Stand kopieren\" bekommen hast:",
+      textValue: "",
+      readOnly: false,
+      confirmLabel: "Übernehmen",
+      cancelLabel: "Abbrechen",
+      onConfirm: (text) => {
+        if (!text || !text.trim()) {
+          showModalError("Bitte zuerst den Text einfügen.");
+          return false;
+        }
+        let imported;
+        try {
+          imported = JSON.parse(text);
+        } catch (e) {
+          showModalError("Das ist kein gültiger Urlaubskosten-Stand (Text unvollständig oder beschädigt).");
+          return false;
+        }
+        if (!imported || typeof imported !== "object" || !Array.isArray(imported.entries)) {
+          showModalError("Das ist kein gültiger Urlaubskosten-Stand.");
+          return false;
+        }
+        state = Object.assign(
+          { persons: 1, kmStart: "", kmEnd: "", dieselLiter: "", dieselKosten: "", entries: [] },
+          imported
+        );
+        saveState(); bindHeaderFields(); render();
+      },
+    });
   }
 
   el("addEntry").addEventListener("click", () => addEntry());
