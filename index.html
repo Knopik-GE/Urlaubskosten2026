@@ -384,8 +384,12 @@
     </div>
     <div class="actions">
       <button class="btn-ghost" id="exportCsv">CSV exportieren</button>
+      <button class="btn-ghost" id="exportState">Stand exportieren</button>
+      <button class="btn-ghost" id="importState">Stand importieren</button>
+      <input type="file" id="importFile" accept="application/json,.json" style="display:none" />
       <button class="btn-danger" id="resetAll">Alles zurücksetzen</button>
     </div>
+    <p class="panel-sub" style="margin:10px 0 0;">"Stand exportieren" sichert alle Eingaben in einer Datei — die kann eine andere Person über "Stand importieren" bei sich einspielen, um mit demselben Stand weiterzumachen. Kein Live‑Abgleich, nur manueller Austausch.</p>
   </section>
 
   <section class="panel">
@@ -639,8 +643,49 @@
     saveState(); bindHeaderFields(); render();
   }
 
+  function exportState() {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "urlaubskosten_stand_" + new Date().toISOString().slice(0, 10) + ".json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importStateFromFile(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      let imported;
+      try {
+        imported = JSON.parse(reader.result);
+      } catch (e) {
+        alert("Diese Datei ist kein gültiger Urlaubskosten-Stand.");
+        return;
+      }
+      if (!imported || typeof imported !== "object" || !Array.isArray(imported.entries)) {
+        alert("Diese Datei ist kein gültiger Urlaubskosten-Stand.");
+        return;
+      }
+      if (!confirm("Aktuelle Daten werden durch die importierte Datei ersetzt. Fortfahren?")) return;
+      state = Object.assign(
+        { persons: 1, kmStart: "", kmEnd: "", dieselLiter: "", dieselKosten: "", entries: [] },
+        imported
+      );
+      saveState(); bindHeaderFields(); render();
+    };
+    reader.readAsText(file);
+  }
+
   el("addEntry").addEventListener("click", () => addEntry());
   el("exportCsv").addEventListener("click", exportCsv);
+  el("exportState").addEventListener("click", exportState);
+  el("importState").addEventListener("click", () => el("importFile").click());
+  el("importFile").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (file) importStateFromFile(file);
+    e.target.value = "";
+  });
   el("resetAll").addEventListener("click", resetAll);
 
   loadState();
