@@ -24,9 +24,13 @@
     --cat-unterkunft: #3F6A8A;
     --cat-essen: #B25A55;
     --cat-einkauf: #5E6F80;
+    --cat-alkohol: #7A3556;
     --cat-besuche: #6B7A3B;
+    --cat-eis: #B2557E;
+    --cat-trinken: #2F8F72;
+    --cat-fahrtkosten: #46586B;
     --cat-sonstiges: #7C6E8C;
-    --cat-diesel: #A9762A;
+    --cat-tanken: #A9762A;
     --shadow: 0 1px 2px rgba(22, 33, 29, 0.06), 0 4px 14px rgba(22, 33, 29, 0.05);
     --font-display: Charter, "Iowan Old Style", "Source Serif 4", Georgia, serif;
     --font-body: -apple-system, "Segoe UI", system-ui, Roboto, Helvetica, Arial, sans-serif;
@@ -50,9 +54,13 @@
       --cat-unterkunft: #7FA6C9;
       --cat-essen: #D98D86;
       --cat-einkauf: #93A4B4;
+      --cat-alkohol: #C97FA6;
       --cat-besuche: #A8BD6C;
+      --cat-eis: #DB8FAE;
+      --cat-trinken: #6FCBA9;
+      --cat-fahrtkosten: #8CA0B5;
       --cat-sonstiges: #ABA0BE;
-      --cat-diesel: #D6A24E;
+      --cat-tanken: #D6A24E;
       --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.35);
     }
   }
@@ -73,9 +81,13 @@
     --cat-unterkunft: #7FA6C9;
     --cat-essen: #D98D86;
     --cat-einkauf: #93A4B4;
+    --cat-alkohol: #C97FA6;
     --cat-besuche: #A8BD6C;
+    --cat-eis: #DB8FAE;
+    --cat-trinken: #6FCBA9;
+    --cat-fahrtkosten: #8CA0B5;
     --cat-sonstiges: #ABA0BE;
-    --cat-diesel: #D6A24E;
+    --cat-tanken: #D6A24E;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.35);
   }
 
@@ -245,9 +257,10 @@
     color: var(--text-muted);
     padding: 0 4px 8px;
   }
-  .row-header span:nth-child(1) { flex: 0 0 150px; }
-  .row-header span:nth-child(2) { flex: 1 1 160px; }
-  .row-header span:nth-child(3) { flex: 0 0 100px; text-align: right; }
+  .row-header span:nth-child(1) { flex: 0 0 46px; }
+  .row-header span:nth-child(2) { flex: 0 0 150px; }
+  .row-header span:nth-child(3) { flex: 1 1 160px; }
+  .row-header span:nth-child(4) { flex: 0 0 100px; text-align: right; }
   #entries { display: flex; flex-direction: column; gap: 8px; }
   .row-entry {
     display: flex;
@@ -264,6 +277,28 @@
   .row-entry .amount-input { flex: 0 0 100px; text-align: right; }
   .row-entry input, .row-entry select { padding: 8px 9px; font-size: 0.88rem; background: var(--surface); }
   .row-entry .btn-icon-del { flex: 0 0 auto; }
+  .row-entry-wrap { display: flex; flex-direction: column; gap: 4px; }
+  .seq-badge {
+    flex: 0 0 auto;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 6px;
+    min-width: 30px;
+    text-align: center;
+  }
+  .entry-meta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    padding: 0 4px 0 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .entry-meta a { color: var(--text-muted); text-decoration: underline; }
 
   button {
     cursor: pointer;
@@ -341,7 +376,6 @@
   /* ---------- Summary bars ---------- */
   .cat-bars { display: flex; flex-direction: column; gap: 10px; }
   .cat-bar-row { display: grid; grid-template-columns: 130px 1fr 90px; align-items: center; gap: 12px; }
-  .cat-bar-row.is-diesel { padding-top: 10px; margin-top: 2px; border-top: 1px dashed var(--border); }
   .cat-bar-row .cname { font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
   .cat-bar-track { height: 8px; border-radius: 5px; background: var(--surface-alt); overflow: hidden; }
   .cat-bar-fill { height: 100%; border-radius: 5px; transition: width 0.35s ease; }
@@ -396,7 +430,7 @@
     <h2><span class="swatch" style="background:var(--cat-unterkunft)"></span>Ausgaben</h2>
     <p class="panel-sub">Unterkunft, Essen gehen, Einkauf, Besuche, Sonstiges — die farbige Kante links zeigt die Kategorie.</p>
     <div class="row-header">
-      <span>Kategorie</span><span>Notiz</span><span>Betrag (€)</span><span></span>
+      <span></span><span>Kategorie</span><span>Notiz</span><span>Betrag (€)</span><span></span>
     </div>
     <div id="entries"></div>
     <div id="emptyHint" class="empty-hint">Noch keine Ausgaben erfasst — füge unten die erste hinzu.</div>
@@ -436,8 +470,8 @@
   </section>
 
   <section class="panel">
-    <h2><span class="swatch" style="background:var(--cat-diesel)"></span>Kilometerstand &amp; Verbrauch</h2>
-    <p class="panel-sub">Start‑ und Endkilometer sowie die insgesamt getankte Dieselmenge und deren Kosten ergeben Strecke und Ø‑Verbrauch.</p>
+    <h2><span class="swatch" style="background:var(--cat-tanken)"></span>Kilometerstand &amp; Verbrauch</h2>
+    <p class="panel-sub">Start‑ und Endkilometer ergeben die Strecke. Getankte Menge und Tankkosten stammen automatisch aus den "Tanken"‑Einträgen oben — keine manuelle Eingabe nötig.</p>
     <div class="grid">
       <div class="field">
         <label for="kmStart">Kilometerstand Anfang</label>
@@ -447,16 +481,16 @@
         <label for="kmEnd">Kilometerstand Ende</label>
         <input type="number" id="kmEnd" min="0" step="1" placeholder="45850" />
       </div>
-      <div class="field">
-        <label for="dieselLiter">Getankt gesamt (Liter)</label>
-        <input type="number" id="dieselLiter" min="0" step="0.01" placeholder="68,5" />
-      </div>
-      <div class="field">
-        <label for="dieselKosten">Dieselkosten gesamt (€)</label>
-        <input type="number" id="dieselKosten" min="0" step="0.01" placeholder="110,00" />
-      </div>
     </div>
     <div class="odometer-grid">
+      <div class="odo-stat">
+        <div class="o-label">Getankt gesamt</div>
+        <div class="o-value tabnum" id="statTankLiter">–<span class="o-unit">l</span></div>
+      </div>
+      <div class="odo-stat">
+        <div class="o-label">Tankkosten gesamt</div>
+        <div class="o-value tabnum" id="statTankKosten">0,00 €</div>
+      </div>
       <div class="odo-stat">
         <div class="o-label">Strecke</div>
         <div class="o-value tabnum" id="statDistanz">–<span class="o-unit">km</span></div>
@@ -466,8 +500,12 @@
         <div class="o-value tabnum" id="statVerbrauch">–<span class="o-unit">l/100km</span></div>
       </div>
       <div class="odo-stat">
-        <div class="o-label">Ø Dieselkosten</div>
+        <div class="o-label">Ø Tankkosten</div>
         <div class="o-value tabnum" id="statKmKosten">–<span class="o-unit">€/km</span></div>
+      </div>
+      <div class="odo-stat">
+        <div class="o-label">Gesamtkosten Fahrt</div>
+        <div class="o-value tabnum" id="statGesamtFahrt">0,00 €</div>
       </div>
     </div>
   </section>
@@ -498,10 +536,14 @@
     { id: "unterkunft", label: "Unterkunft", color: "var(--cat-unterkunft)" },
     { id: "essen", label: "Essen gehen", color: "var(--cat-essen)" },
     { id: "einkauf", label: "Einkauf", color: "var(--cat-einkauf)" },
+    { id: "alkohol", label: "Einkauf: Alkoholische Getränke", color: "var(--cat-alkohol)" },
     { id: "besuche", label: "Besuche", color: "var(--cat-besuche)" },
+    { id: "eis", label: "Eis und anderes", color: "var(--cat-eis)" },
+    { id: "trinken", label: "Etwas trinken", color: "var(--cat-trinken)" },
+    { id: "fahrtkosten", label: "Fahrtkosten (Maut u.ä.)", color: "var(--cat-fahrtkosten)" },
+    { id: "tanken", label: "Tanken", color: "var(--cat-tanken)" },
     { id: "sonstiges", label: "Sonstiges", color: "var(--cat-sonstiges)" },
   ];
-  const DIESEL_CAT = { id: "diesel", label: "Diesel", color: "var(--cat-diesel)" };
   const catById = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
 
   const el = (id) => document.getElementById(id);
@@ -541,9 +583,29 @@
   function uid() { return Math.random().toString(36).slice(2, 10); }
 
   function addEntry(entry) {
-    state.entries.push(Object.assign({ id: uid(), category: CATEGORIES[0].id, note: "", amount: "" }, entry || {}));
+    const id = uid();
+    const now = new Date();
+    state.entries.push(Object.assign(
+      { id, category: CATEGORIES[0].id, note: "", amount: "", liter: "", createdAt: now.toISOString() },
+      entry || {}
+    ));
     render();
     saveState();
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const e = state.entries.find((x) => x.id === id);
+          if (!e) return;
+          e.lat = pos.coords.latitude;
+          e.lon = pos.coords.longitude;
+          saveState();
+          renderEntries();
+        },
+        () => {},
+        { timeout: 6000, maximumAge: 120000 }
+      );
+    }
   }
   function removeEntry(id) {
     state.entries = state.entries.filter((e) => e.id !== id);
@@ -555,10 +617,22 @@
     entriesContainer.innerHTML = "";
     emptyHint.style.display = state.entries.length === 0 ? "block" : "none";
 
+    const catSeq = {};
     state.entries.forEach((entry) => {
+      catSeq[entry.category] = (catSeq[entry.category] || 0) + 1;
+      const seq = catSeq[entry.category];
+      const isTanken = entry.category === "tanken";
+
+      const wrap = document.createElement("div");
+      wrap.className = "row-entry-wrap";
+
       const row = document.createElement("div");
       row.className = "row-entry";
       row.style.borderLeftColor = (catById[entry.category] || catById.sonstiges).color;
+
+      const seqBadge = document.createElement("span");
+      seqBadge.className = "seq-badge";
+      seqBadge.textContent = "Nr. " + seq;
 
       const catSelect = document.createElement("select");
       CATEGORIES.forEach((c) => {
@@ -569,24 +643,31 @@
       });
       catSelect.addEventListener("change", () => {
         entry.category = catSelect.value;
-        row.style.borderLeftColor = catById[entry.category].color;
-        saveState(); renderSummary();
+        saveState(); render();
       });
 
       const noteInput = document.createElement("input");
-      noteInput.type = "text";
       noteInput.className = "note-input";
-      noteInput.placeholder = "Notiz (optional)";
-      noteInput.value = entry.note || "";
-      noteInput.addEventListener("input", () => { entry.note = noteInput.value; saveState(); });
+      if (isTanken) {
+        noteInput.type = "number";
+        noteInput.step = "0.01"; noteInput.min = "0";
+        noteInput.placeholder = "Liter";
+        noteInput.value = entry.liter === undefined ? "" : entry.liter;
+        noteInput.addEventListener("input", () => { entry.liter = noteInput.value; saveState(); renderKmStats(); });
+      } else {
+        noteInput.type = "text";
+        noteInput.placeholder = "Notiz (optional)";
+        noteInput.value = entry.note || "";
+        noteInput.addEventListener("input", () => { entry.note = noteInput.value; saveState(); });
+      }
 
       const amountInput = document.createElement("input");
       amountInput.type = "number";
       amountInput.step = "0.01"; amountInput.min = "0";
-      amountInput.placeholder = "0,00";
+      amountInput.placeholder = isTanken ? "Kosten (€)" : "0,00";
       amountInput.className = "amount-input";
       amountInput.value = entry.amount === "" || entry.amount === undefined ? "" : entry.amount;
-      amountInput.addEventListener("input", () => { entry.amount = amountInput.value; saveState(); renderSummary(); });
+      amountInput.addEventListener("input", () => { entry.amount = amountInput.value; saveState(); renderSummary(); renderKmStats(); });
 
       const delBtn = document.createElement("button");
       delBtn.className = "btn-icon-del";
@@ -594,27 +675,61 @@
       delBtn.textContent = "✕";
       delBtn.addEventListener("click", () => removeEntry(entry.id));
 
-      row.append(catSelect, noteInput, amountInput, delBtn);
-      entriesContainer.appendChild(row);
+      row.append(seqBadge, catSelect, noteInput, amountInput, delBtn);
+
+      const meta = document.createElement("div");
+      meta.className = "entry-meta";
+      if (entry.createdAt) {
+        const d = new Date(entry.createdAt);
+        const span = document.createElement("span");
+        span.textContent = d.toLocaleDateString("de-DE") + " · " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+        meta.appendChild(span);
+      }
+      if (entry.lat != null && entry.lon != null) {
+        const a = document.createElement("a");
+        a.href = "https://www.google.com/maps?q=" + entry.lat + "," + entry.lon;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.textContent = "📍 Standort";
+        meta.appendChild(a);
+      }
+      if (meta.children.length) wrap.append(row, meta);
+      else wrap.append(row);
+
+      entriesContainer.appendChild(wrap);
     });
   }
 
-  function renderSummary() {
+  function computeTotals() {
     const totals = {};
     CATEGORIES.forEach((c) => (totals[c.id] = 0));
+    let literTanken = 0;
     state.entries.forEach((e) => {
       const amount = parseFloat(e.amount);
       if (!isNaN(amount) && totals.hasOwnProperty(e.category)) totals[e.category] += amount;
+      if (e.category === "tanken") {
+        const l = parseFloat(e.liter);
+        if (!isNaN(l)) literTanken += l;
+      }
     });
-    const dieselKosten = parseFloat(state.dieselKosten) || 0;
-    const gesamt = Object.values(totals).reduce((a, b) => a + b, 0) + dieselKosten;
+    // Rückwärtskompatibilität: alte manuell eingegebene Diesel-Gesamtwerte,
+    // solange noch keine "Tanken"-Einträge in der Liste vorhanden sind.
+    if (totals.tanken === 0 && parseFloat(state.dieselKosten) > 0) totals.tanken = parseFloat(state.dieselKosten);
+    if (literTanken === 0 && parseFloat(state.dieselLiter) > 0) literTanken = parseFloat(state.dieselLiter);
+
+    const gesamt = Object.values(totals).reduce((a, b) => a + b, 0);
+    return { totals, literTanken, gesamt };
+  }
+
+  function renderSummary() {
+    const { totals, gesamt } = computeTotals();
 
     const bars = el("catBars");
     bars.innerHTML = "";
-    const renderBar = (c, amount, extraClass) => {
+    const renderBar = (c, amount) => {
       const pct = gesamt > 0 ? Math.max((amount / gesamt) * 100, amount > 0 ? 2 : 0) : 0;
       const row = document.createElement("div");
-      row.className = "cat-bar-row" + (extraClass ? " " + extraClass : "");
+      row.className = "cat-bar-row";
       row.innerHTML = `
         <div class="cname"><span class="swatch" style="background:${c.color}"></span>${c.label}</div>
         <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%;background:${c.color}"></div></div>
@@ -622,23 +737,24 @@
       bars.appendChild(row);
     };
     CATEGORIES.forEach((c) => renderBar(c, totals[c.id]));
-    renderBar(DIESEL_CAT, dieselKosten, "is-diesel");
 
     el("statGesamt").textContent = formatEuro(gesamt);
     el("tbGesamt").textContent = formatEuro(gesamt);
 
     const persons = parseInt(state.persons, 10) || 1;
     el("statProPerson").textContent = persons > 0 ? formatEuro(gesamt / persons) : "–";
-
-    return { totals, dieselKosten, gesamt, persons };
   }
 
   function renderKmStats() {
     const kmStart = parseFloat(state.kmStart);
     const kmEnd = parseFloat(state.kmEnd);
-    const liter = parseFloat(state.dieselLiter);
-    const dieselKosten = parseFloat(state.dieselKosten);
+    const { totals, literTanken } = computeTotals();
+    const tankKosten = totals.tanken;
+    const fahrtkosten = totals.fahrtkosten;
     let distanz = null;
+
+    el("statTankLiter").innerHTML = literTanken > 0 ? formatNumber(literTanken, 2) + '<span class="o-unit">l</span>' : '–<span class="o-unit">l</span>';
+    el("statTankKosten").textContent = formatEuro(tankKosten);
 
     if (!isNaN(kmStart) && !isNaN(kmEnd) && kmEnd > kmStart) {
       distanz = kmEnd - kmStart;
@@ -648,19 +764,21 @@
     }
 
     let verbrauchText = "–";
-    if (distanz && !isNaN(liter) && liter > 0) {
-      verbrauchText = formatNumber((liter / distanz) * 100, 2);
+    if (distanz && literTanken > 0) {
+      verbrauchText = formatNumber((literTanken / distanz) * 100, 2);
       el("statVerbrauch").innerHTML = verbrauchText + '<span class="o-unit">l/100km</span>';
     } else {
       el("statVerbrauch").innerHTML = '–<span class="o-unit">l/100km</span>';
     }
     el("tbVerbrauch").textContent = verbrauchText === "–" ? "–" : verbrauchText + " l/100km";
 
-    if (distanz && !isNaN(dieselKosten) && dieselKosten > 0) {
-      el("statKmKosten").innerHTML = formatNumber(dieselKosten / distanz, 3) + '<span class="o-unit">€/km</span>';
+    if (distanz && tankKosten > 0) {
+      el("statKmKosten").innerHTML = formatNumber(tankKosten / distanz, 3) + '<span class="o-unit">€/km</span>';
     } else {
       el("statKmKosten").innerHTML = '–<span class="o-unit">€/km</span>';
     }
+
+    el("statGesamtFahrt").textContent = formatEuro(tankKosten + fahrtkosten);
   }
 
   function render() {
@@ -670,7 +788,7 @@
   }
 
   function bindHeaderFields() {
-    const map = { persons: "persons", kmStart: "kmStart", kmEnd: "kmEnd", dieselLiter: "dieselLiter", dieselKosten: "dieselKosten" };
+    const map = { persons: "persons", kmStart: "kmStart", kmEnd: "kmEnd" };
     Object.entries(map).forEach(([stateKey, elId]) => {
       const node = el(elId);
       node.value = state[stateKey] || (stateKey === "persons" ? 1 : "");
@@ -696,13 +814,18 @@
   }
 
   function buildCsv() {
-    const rows = [["Kategorie", "Notiz", "Betrag (€)"]];
+    const rows = [["Nr.", "Kategorie", "Notiz", "Liter", "Betrag (€)", "Datum", "Uhrzeit", "Ort"]];
+    const catSeq = {};
     state.entries.forEach((e) => {
+      catSeq[e.category] = (catSeq[e.category] || 0) + 1;
       const label = (catById[e.category] || {}).label || e.category;
-      rows.push([label, e.note || "", e.amount || "0"]);
+      const d = e.createdAt ? new Date(e.createdAt) : null;
+      const datum = d ? d.toLocaleDateString("de-DE") : "";
+      const uhrzeit = d ? d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : "";
+      const ort = e.lat != null && e.lon != null ? e.lat.toFixed(5) + ", " + e.lon.toFixed(5) : "";
+      const liter = e.category === "tanken" ? (e.liter || "0") : "";
+      rows.push([catSeq[e.category], label, e.note || "", liter, e.amount || "0", datum, uhrzeit, ort]);
     });
-    const dieselKosten = parseFloat(state.dieselKosten) || 0;
-    if (dieselKosten > 0) rows.push(["Diesel", "Kilometerstand", String(dieselKosten)]);
     return rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
   }
 
